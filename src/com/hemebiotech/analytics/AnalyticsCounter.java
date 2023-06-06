@@ -3,41 +3,80 @@ package com.hemebiotech.analytics;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+
+/**
+* The AnalyticsCounter class provides functionality to analyze and count symptoms data.
+*/
 
 public class AnalyticsCounter {
-	private static int headacheCount = 0;	// initialize to 0
-	private static int rashCount = 0;		// initialize to 0
-	private static int pupilCount = 0;		// initialize to 0
-	
-	public static void main(String args[]) throws Exception {
-		// first get input
-		BufferedReader reader = new BufferedReader (new FileReader("symptoms.txt"));
-		String line = reader.readLine();
+  ISymptomReader reader;
+  ISymptomWriter writer;
 
-		int i = 0;	// set i to 0
-		int headCount = 0;	// counts headaches
-		while (line != null) {
-			i++;	// increment i
-			System.out.println("symptom from file: " + line);
-			if (line.equals("headache")) {
-				headCount++;
-				System.out.println("number of headaches: " + headCount);
-			}
-			else if (line.equals("rush")) {
-				rashCount++;
-			}
-			else if (line.contains("pupils")) {
-				pupilCount++;
-			}
+  /**
+   * Constructs an AnalyticsCounter object with the specified reader and writer.
+   *
+   *@param reader The ISymptomReader implementation used to read symptom data.
+   *@param writer The ISymptomWriter implementation used to write analyzed data.
+   */  
+  public AnalyticsCounter(ISymptomReader reader, ISymptomWriter writer) {
+    this.reader = reader;
+    this.writer = writer;
 
-			line = reader.readLine();	// get another symptom
-		}
-		
-		// next generate output
-		FileWriter writer = new FileWriter ("result.out");
-		writer.write("headache: " + headacheCount + "\n");
-		writer.write("rash: " + rashCount + "\n");
-		writer.write("dialated pupils: " + pupilCount + "\n");
-		writer.close();
-	}
+  }
+
+  /**
+  *Retrieves the list of syptoms from the reader.
+  *@return the list of symptoms.
+  */
+  public List<String> getSymptoms() {
+    return this.reader.getSymptoms();
+  }
+
+  /**
+  *Counts the occurences of symptoms and returns a map of symptom - frequency pairs.
+  *@param symptoms The list of symptoms to count.
+  *@return A map containing symptoms as keys and their corresponding frequences as values.
+  */
+
+  public Map<String, Integer> countSymptoms(List<String> symptoms) {
+    Map<String,Integer> mapSymptoms = new HashMap<>();
+    for (String symptom : symptoms) {
+      if (mapSymptoms.containsKey(symptom)) {
+        mapSymptoms.put(symptom, mapSymptoms.get(symptom) + 1);
+      } else {
+        mapSymptoms.put(symptom, 1);
+      }
+    }
+    return mapSymptoms;
+  }      
+
+  /**
+  * Sorts the symptoms in alphabetical order and returns a TreeMap.
+  *
+  *@param symptoms The map of symptoms to sort.
+  *@return A TreeMap containing the symptoms sorted in alphabetical order.
+  */
+
+  public Map<String, Integer> sortSymptoms(Map<String, Integer> symptoms) {
+    TreeMap<String, Integer> sortedSymptoms = new TreeMap<>();
+    sortedSymptoms.putAll(symptoms);
+    return sortedSymptoms;
+    
+  }
+
+
+  /** Writes the symptoms and their frequences using the writer.
+  *
+  *@param symptoms the map of symptoms and their frequences to write.
+  */
+
+  public void writeSymptoms(Map<String, Integer> symptoms) {
+    this.writer.writeSymptoms(symptoms);
+  }
+
 }
